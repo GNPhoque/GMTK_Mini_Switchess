@@ -14,7 +14,7 @@ public static class GameTurn
 	public static Cell hoveringCell;
 	public static List<Cell> moveCells = new List<Cell>();
 
-	public static event Action<Turn> OnTurnChanged;
+	public static Action<Turn> OnTurnChanged;
 
 	public static void ShowPossibleMoves(Cell from)
 	{
@@ -53,7 +53,6 @@ public static class GameTurn
 						moveCells.Add(destination);
 						break;
 					}
-
 				}
 			}
 		}
@@ -66,8 +65,8 @@ public static class GameTurn
 			{
 				foreach (var move in direction.positions)
 				{
-					Cell destination = Board.instance.GetCell(from.piece.data.color == Turn.White ? from.position + move : from.position - move);
-					if (destination == null) continue; //Target cell out of the board
+					Cell destination = Board.instance.GetCell(from.position + move);
+					if (destination == null) break; //Target cell out of the board
 
 					Piece posPiece = destination.piece;
 					//No piece at target cell : can move there
@@ -84,8 +83,8 @@ public static class GameTurn
 			{
 				foreach (var move in direction.positions)
 				{
-					Cell destination = Board.instance.GetCell(from.piece.data.color == Turn.White ? from.position + move : from.position - move);
-					if (destination == null) continue;
+					Cell destination = Board.instance.GetCell(from.position + move);
+					if (destination == null) break;
 
 					Piece posPiece = destination.piece;
 					if (posPiece != null && posPiece.data.color != from.piece.data.color)

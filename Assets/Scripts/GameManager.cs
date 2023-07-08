@@ -7,9 +7,13 @@ public class GameManager : MonoBehaviour
 	[SerializeField] Board board;
 	[SerializeField] PieceData[] pieceDatas;
 	[SerializeField] Piece piecePrefab;
+	[SerializeField] Player player;
+	[SerializeField] PlayerAI ai;
 
 	private void Start()
 	{
+		player.turn = Turn.White;
+		ai.turn = Turn.Black;
 		board.CreateBoard();
 		SetupPieces();
 	}
