@@ -64,4 +64,4 @@ MonoBehaviour:
   attackDirections: []
   value: 30
   attacksSameAsMovement: 1
-  sprite: {fileID: 0}
+  sprite: {fileID: 21300000, guid: aa3f93638934cac44969ba9ec8359e34, type: 3}

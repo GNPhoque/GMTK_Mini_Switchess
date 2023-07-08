@@ -29,4 +29,4 @@ MonoBehaviour:
       y: 1
   value: 10
   attacksSameAsMovement: 0
-  sprite: {fileID: 0}
+  sprite: {fileID: 21300000, guid: 23bf1941490eed944b6f36ddc13888ac, type: 3}
