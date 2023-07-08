@@ -14,10 +14,14 @@ public class GameManager : MonoBehaviour
 
 		Piece p = Instantiate(piecePrefab, board.transform);
 		p.Setup(pieceDatas[0]);
-		board.GetCell(new CellPosition(0,4)).SetPiece(p);
+		board.GetCell(new CellPosition(0, 4)).SetPiece(p);
 
 		p = Instantiate(piecePrefab, board.transform);
 		p.Setup(pieceDatas[1]);
-		board.GetCell(new CellPosition(0,0)).SetPiece(p);
+		board.GetCell(new CellPosition(0, 0)).SetPiece(p);
+
+		p = Instantiate(piecePrefab, board.transform);
+		p.Setup(pieceDatas[2]);
+		board.GetCell(new CellPosition(3, 2)).SetPiece(p);
 	}
 }

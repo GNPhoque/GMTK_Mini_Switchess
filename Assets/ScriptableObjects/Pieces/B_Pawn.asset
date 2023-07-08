@@ -19,5 +19,7 @@ MonoBehaviour:
   movements:
   - x: 0
     y: 1
+  attacks: []
   value: 10
+  attacksSameAsMovement: 0
   sprite: {fileID: 0}

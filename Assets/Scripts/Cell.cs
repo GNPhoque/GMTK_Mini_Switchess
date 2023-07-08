@@ -10,7 +10,6 @@ public class Cell : MonoBehaviour
 	public Piece piece;
 	public Turn color;
 	public Color cellColor;
-	public Vector2 startPosition;
 
 	public void Setup(CellPosition position, Turn color, Color cellColor)
 	{
@@ -31,7 +30,12 @@ public class Cell : MonoBehaviour
 		p.rt.anchoredPosition = rt.anchoredPosition;
 	}
 
-	public void Glow()
+	public void GlowGreen()
+	{
+		image.color = Color.green;
+	}
+
+	public void GlowRed()
 	{
 		image.color = Color.red;
 	}
@@ -43,13 +47,7 @@ public class Cell : MonoBehaviour
 
 	private void ShowPossibleMoves()
 	{
-		//show possible moves
-		List<CellPosition> moves = new List<CellPosition>();
-		foreach (CellPosition p in piece.data.movements)
-		{
-			moves.Add(piece.data.color == Turn.White ? position + p : position - p);
-			GameTurn.ShowMoveCells(moves);
-		}
+		GameTurn.ShowPossibleMoves(this);
 	}
 
 	#region EVENT TRIGGER
@@ -83,18 +81,19 @@ public class Cell : MonoBehaviour
 	{
 		print($"drag ({position.x},{position.y}), isDragging = {GameTurn.isDragging}");
 		if (!piece) return;
+
 		//if not dragging save starting position
 		if (!GameTurn.isDragging)
 		{
-			//startPosition = piece?.rt.anchoredPosition;
+			piece.startPosition = piece.rt.anchoredPosition;
+			piece.rt.anchorMin = new Vector2(.5f, .5f);
+			piece.rt.anchorMax = new Vector2(.5f, .5f);
 			GameTurn.dragStartCell = this;
 			GameTurn.draggingPiece = piece;
 			GameTurn.isDragging = true;
 		}
-		else
-		{
-			GameTurn.draggingPiece.rt.anchoredPosition = Input.mousePosition;
-		}
+		Vector2 endPos = Input.mousePosition + Board.instance.mouseOffset;
+		GameTurn.draggingPiece.rt.anchoredPosition = endPos;
 		//move to cursor position
 	}
 
@@ -104,19 +103,26 @@ public class Cell : MonoBehaviour
 
 		print($"drop ({position.x},{position.y})");
 		//if possible move : move to cell (and attack)
-		if (true)
+		if (GameTurn.moveCells.Contains(this))
 		{
+			if (piece) Destroy(piece.gameObject);
 			piece = GameTurn.draggingPiece;
+			piece.rt.anchorMin = new Vector2(0f, 0f);
+			piece.rt.anchorMax = new Vector2(0f, 0f);
 			GameTurn.dragStartCell.piece = null;
 			GameTurn.draggingPiece.rt.anchoredPosition = rt.anchoredPosition;
 			ShowPossibleMoves();
-			GameTurn.isDragging = false;
 		}
 		//else return to start position
 		else
 		{
-			rt.anchoredPosition = startPosition;
+			GameTurn.draggingPiece.rt.anchoredPosition = GameTurn.draggingPiece.startPosition;
+			GameTurn.draggingPiece.rt.anchorMin = new Vector2(0f, 0f);
+			GameTurn.draggingPiece.rt.anchorMax = new Vector2(0f, 0f);
+			GameTurn.HideMoveCells();
 		}
-	} 
+
+		GameTurn.isDragging = false;
+	}
 	#endregion
 }

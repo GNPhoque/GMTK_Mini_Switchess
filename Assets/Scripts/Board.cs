@@ -11,6 +11,7 @@ public class Board : MonoBehaviour
 	public Color colorBlack;
 	public Cell cellPrefab;
 	public List<Cell> cells;
+	public Vector3 mouseOffset;
 
 	public static Board instance;
 
@@ -45,6 +46,17 @@ public class Board : MonoBehaviour
 	{
 		return cells.FirstOrDefault(x => x.position == position);
 	}
+
+	public void OnBackgroundDrop()
+	{
+		print("background drop");
+		GameTurn.draggingPiece.rt.anchoredPosition = GameTurn.draggingPiece.startPosition;
+		GameTurn.draggingPiece.rt.anchorMin = new Vector2(0f, 0f);
+		GameTurn.draggingPiece.rt.anchorMax = new Vector2(0f, 0f);
+		GameTurn.HideMoveCells();
+		GameTurn.isDragging = false;
+	}
+
 }
 
 [Serializable]

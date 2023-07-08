@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 public static class GameTurn
 {
@@ -15,17 +16,60 @@ public static class GameTurn
 
 	public static event Action<Turn> OnTurnChanged;
 
-	public static void ShowMoveCells(List<CellPosition> positions)
+	public static void ShowPossibleMoves(Cell from)
 	{
+		if (!from.piece) return;
+
 		HideMoveCells();
 		moveCells.Clear();
-		foreach (var p in positions)
-		{
-			Cell cell = Board.instance.GetCell(p);
-			if(cell == null) continue;
 
-			cell.Glow();
-			moveCells.Add(cell);
+		//Non Pawn pieces
+		if (from.piece.data.attacksSameAsMovement)
+		{
+			foreach (var move in from.piece.data.movements)
+			{
+				Cell destination = Board.instance.GetCell(from.position + move);
+				if (destination == null) continue;
+
+				moveCells.Add(destination);
+				Piece posPiece = destination.piece;
+				if (posPiece == null)
+					destination.GlowGreen();
+				else
+					destination.GlowRed();
+			}
+		}
+
+		//Pawn
+		else
+		{
+			//Moves
+			foreach (var move in from.piece.data.movements)
+			{
+				Cell destination = Board.instance.GetCell(from.piece.data.color == Turn.White ? from.position + move : from.position - move);
+				if (destination == null) continue;
+
+				Piece posPiece = destination.piece;
+				if (posPiece == null)
+				{
+					destination.GlowGreen();
+					moveCells.Add(destination);
+				}
+			}
+
+			//Attacks
+			foreach (var move in from.piece.data.attacks)
+			{
+				Cell destination = Board.instance.GetCell(from.piece.data.color == Turn.White ? from.position + move : from.position - move);
+				if (destination == null) continue;
+
+				Piece posPiece = destination.piece;
+				if (posPiece != null)
+				{
+					destination.GlowRed();
+					moveCells.Add(destination);
+				}
+			}
 		}
 	}
 
