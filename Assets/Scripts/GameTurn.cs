@@ -31,12 +31,15 @@ public static class GameTurn
 				Cell destination = Board.instance.GetCell(from.position + move);
 				if (destination == null) continue;
 
-				moveCells.Add(destination);
 				Piece posPiece = destination.piece;
 				if (posPiece == null)
 					destination.GlowGreen();
+				else if (posPiece.data.color == from.piece.data.color)
+					continue;
 				else
 					destination.GlowRed();
+				
+				moveCells.Add(destination);
 			}
 		}
 
@@ -64,7 +67,7 @@ public static class GameTurn
 				if (destination == null) continue;
 
 				Piece posPiece = destination.piece;
-				if (posPiece != null)
+				if (posPiece != null && posPiece.data.color != from.piece.data.color)
 				{
 					destination.GlowRed();
 					moveCells.Add(destination);
