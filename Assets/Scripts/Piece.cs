@@ -14,6 +14,6 @@ public class Piece : MonoBehaviour
 	{
 		data = _data;
 		image.sprite = data.sprite;
-		image.color = data.color == Turn.White ? Color.white : Color.black;
+		//image.color = data.color == Turn.White ? Color.white : Color.black;
 	}
 }
