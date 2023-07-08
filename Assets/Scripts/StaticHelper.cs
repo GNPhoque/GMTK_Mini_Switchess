@@ -54,5 +54,6 @@ public class StaticHelper
 	{
 		//Set all your statics here
 		GameTurn.moveCells = new List<Cell>();
+		GameTurn.turn = Turn.White;
 }
 }
