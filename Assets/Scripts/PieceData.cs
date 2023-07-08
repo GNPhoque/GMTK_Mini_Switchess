@@ -7,8 +7,8 @@ public class PieceData : ScriptableObject
 {
 	public Turn color;
 	public CellPosition cellPosition;
-	public CellPosition[] movements;
-	public CellPosition[] attacks;
+	public MoveDirection[] moveDirections;
+	public MoveDirection[] attackDirections;
 	public int value;
 	public bool attacksSameAsMovement;
 

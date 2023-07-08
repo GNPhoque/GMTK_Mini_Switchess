@@ -34,6 +34,32 @@ MonoBehaviour:
   - x: 1
     y: 1
   attacks: []
+  moveDirections:
+  - positions:
+    - x: -1
+      y: -1
+  - positions:
+    - x: -1
+      y: 0
+  - positions:
+    - x: -1
+      y: 1
+  - positions:
+    - x: 0
+      y: -1
+  - positions:
+    - x: 0
+      y: 1
+  - positions:
+    - x: 1
+      y: -1
+  - positions:
+    - x: 1
+      y: 0
+  - positions:
+    - x: 1
+      y: 1
+  attackDirections: []
   value: 900
   attacksSameAsMovement: 1
   sprite: {fileID: 0}

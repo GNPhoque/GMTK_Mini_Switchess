@@ -16,24 +16,32 @@ MonoBehaviour:
   cellPosition:
     x: 0
     y: 0
-  movements:
-  - x: -2
-    y: -1
-  - x: -2
-    y: 1
-  - x: -1
-    y: -2
-  - x: -1
-    y: 2
-  - x: 1
-    y: -2
-  - x: 1
-    y: 2
-  - x: 2
-    y: -1
-  - x: 2
-    y: 1
-  attacks: []
+  moveDirections:
+  - positions:
+    - x: -2
+      y: -1
+  - positions:
+    - x: -2
+      y: 1
+  - positions:
+    - x: -1
+      y: -2
+  - positions:
+    - x: -1
+      y: 2
+  - positions:
+    - x: 1
+      y: -2
+  - positions:
+    - x: 1
+      y: 2
+  - positions:
+    - x: 2
+      y: -1
+  - positions:
+    - x: 2
+      y: 1
+  attackDirections: []
   value: 30
   attacksSameAsMovement: 1
   sprite: {fileID: 0}

@@ -347,9 +347,18 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   board: {fileID: 459301485}
   pieceDatas:
-  - {fileID: 11400000, guid: 49d0ea3af815b0249aeda7c58ac7e80f, type: 2}
   - {fileID: 11400000, guid: b4aa3c0192790ac4eba9e4acaa984789, type: 2}
+  - {fileID: 11400000, guid: 81a51adb6bb0e974c969c7f0256961ba, type: 2}
+  - {fileID: 11400000, guid: 7ed5d4f78493bbf4d83c6f0ff9e5fdd6, type: 2}
+  - {fileID: 11400000, guid: fbbeb4d377909d74ea4c1c75d32ebeb9, type: 2}
+  - {fileID: 11400000, guid: e4fee7b2e5a62944d818b52887a16638, type: 2}
+  - {fileID: 11400000, guid: 98390112b3639f94f982c49a9f85ce29, type: 2}
+  - {fileID: 11400000, guid: 49d0ea3af815b0249aeda7c58ac7e80f, type: 2}
   - {fileID: 11400000, guid: b531f448882ee954e81708b65a9f384c, type: 2}
+  - {fileID: 11400000, guid: 38c890187b52644449938087d70c0071, type: 2}
+  - {fileID: 11400000, guid: 98ecffdd5d9c79444b15d3d57cae10c6, type: 2}
+  - {fileID: 11400000, guid: 0654b5cc49ff67244ba04fa98fcc8568, type: 2}
+  - {fileID: 11400000, guid: 3996d4e30f805a943bab5626fd841413, type: 2}
   piecePrefab: {fileID: 3426080746304216895, guid: 564c5f45d3b02eb41a247f49d9834ead, type: 3}
 --- !u!4 &833480738
 Transform:

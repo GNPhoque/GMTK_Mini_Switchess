@@ -26,20 +26,35 @@ public static class GameTurn
 		//Non Pawn pieces
 		if (from.piece.data.attacksSameAsMovement)
 		{
-			foreach (var move in from.piece.data.movements)
+			foreach (var direction in from.piece.data.moveDirections)
 			{
-				Cell destination = Board.instance.GetCell(from.position + move);
-				if (destination == null) continue;
+				foreach (var move in direction.positions)
+				{
+					Cell destination = Board.instance.GetCell(from.position + move);
+					if (destination == null) continue; //Target cell out of the board
 
-				Piece posPiece = destination.piece;
-				if (posPiece == null)
-					destination.GlowGreen();
-				else if (posPiece.data.color == from.piece.data.color)
-					continue;
-				else
-					destination.GlowRed();
-				
-				moveCells.Add(destination);
+					Piece posPiece = destination.piece;
+
+					//No piece at target cell : can move there
+					if (posPiece == null)
+					{
+						destination.GlowGreen();
+						moveCells.Add(destination);
+					}
+
+					else
+					{
+						//Ally piece : stop direction
+						if (posPiece.data.color == from.piece.data.color)
+							break;
+
+						//Enemy piece : can capture & stop direction
+						destination.GlowRed();
+						moveCells.Add(destination);
+						break;
+					}
+
+				}
 			}
 		}
 
@@ -47,30 +62,37 @@ public static class GameTurn
 		else
 		{
 			//Moves
-			foreach (var move in from.piece.data.movements)
+			foreach (var direction in from.piece.data.moveDirections)
 			{
-				Cell destination = Board.instance.GetCell(from.piece.data.color == Turn.White ? from.position + move : from.position - move);
-				if (destination == null) continue;
-
-				Piece posPiece = destination.piece;
-				if (posPiece == null)
+				foreach (var move in direction.positions)
 				{
-					destination.GlowGreen();
-					moveCells.Add(destination);
+					Cell destination = Board.instance.GetCell(from.piece.data.color == Turn.White ? from.position + move : from.position - move);
+					if (destination == null) continue; //Target cell out of the board
+
+					Piece posPiece = destination.piece;
+					//No piece at target cell : can move there
+					if (posPiece == null)
+					{
+						destination.GlowGreen();
+						moveCells.Add(destination);
+					}
 				}
 			}
 
 			//Attacks
-			foreach (var move in from.piece.data.attacks)
+			foreach (var direction in from.piece.data.attackDirections)
 			{
-				Cell destination = Board.instance.GetCell(from.piece.data.color == Turn.White ? from.position + move : from.position - move);
-				if (destination == null) continue;
-
-				Piece posPiece = destination.piece;
-				if (posPiece != null && posPiece.data.color != from.piece.data.color)
+				foreach (var move in direction.positions)
 				{
-					destination.GlowRed();
-					moveCells.Add(destination);
+					Cell destination = Board.instance.GetCell(from.piece.data.color == Turn.White ? from.position + move : from.position - move);
+					if (destination == null) continue;
+
+					Piece posPiece = destination.piece;
+					if (posPiece != null && posPiece.data.color != from.piece.data.color)
+					{
+						destination.GlowRed();
+						moveCells.Add(destination);
+					}
 				}
 			}
 		}

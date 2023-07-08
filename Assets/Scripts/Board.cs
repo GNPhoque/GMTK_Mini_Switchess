@@ -91,3 +91,9 @@ public class CellPosition
 		return a.x != b.x || a.y != b.y;
 	}
 }
+
+[Serializable]
+public class MoveDirection
+{
+	public CellPosition[] positions;
+}
