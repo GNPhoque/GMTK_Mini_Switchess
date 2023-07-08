@@ -53,7 +53,6 @@ public class Cell : MonoBehaviour
 	#region EVENT TRIGGER
 	public void PointerEnter()
 	{
-		print("enter");
 		if (!piece) return;
 
 		GameTurn.hoveringCell = this;
@@ -67,7 +66,6 @@ public class Cell : MonoBehaviour
 
 	public void PointerExit()
 	{
-		print("exit");
 		GameTurn.hoveringCell = null;
 		//Unhighlight cell
 		//if not dragging hide moves
@@ -79,8 +77,7 @@ public class Cell : MonoBehaviour
 
 	public void PointerDrag()
 	{
-		print($"drag ({position.x},{position.y}), isDragging = {GameTurn.isDragging}");
-		if (!piece) return;
+		if (!piece || !piece.data.canBePlayed) return;
 
 		//if not dragging save starting position
 		if (!GameTurn.isDragging)
@@ -101,7 +98,6 @@ public class Cell : MonoBehaviour
 	{
 		if (!GameTurn.isDragging) return;
 
-		print($"drop ({position.x},{position.y})");
 		//if possible move : move to cell (and attack)
 		if (GameTurn.moveCells.Contains(this))
 		{
@@ -112,6 +108,7 @@ public class Cell : MonoBehaviour
 			GameTurn.dragStartCell.piece = null;
 			GameTurn.draggingPiece.rt.anchoredPosition = rt.anchoredPosition;
 			ShowPossibleMoves();
+			GameTurn.EndTurn();
 		}
 		//else return to start position
 		else

@@ -31,7 +31,7 @@ public static class GameTurn
 				foreach (var move in direction.positions)
 				{
 					Cell destination = Board.instance.GetCell(from.position + move);
-					if (destination == null) continue; //Target cell out of the board
+					if (destination == null) break; //Target cell out of the board
 
 					Piece posPiece = destination.piece;
 
