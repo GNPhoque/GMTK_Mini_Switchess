@@ -7,12 +7,17 @@ using UnityEngine;
 public class Board : MonoBehaviour
 {
 	public int sizeX, sizeY;
+	public Color colorWhite;
+	public Color colorBlack;
 	public Cell cellPrefab;
 	public List<Cell> cells;
 
-	private void Start()
+	public static Board instance;
+
+	private void Awake()
 	{
-		CreateBoard();
+		if (instance) Destroy(instance.gameObject);
+		instance = this;
 	}
 
 	public void CreateBoard()
@@ -29,7 +34,7 @@ public class Board : MonoBehaviour
 			for (int x = 0; x < sizeX; x++)
 			{
 				Cell cell = Instantiate(cellPrefab, transform);
-				cell.Setup(new CellPosition(x, y), nextCellIsWhite ? Turn.White : Turn.Black);
+				cell.Setup(new CellPosition(x, y), nextCellIsWhite ? Turn.White : Turn.Black, nextCellIsWhite ? colorWhite : colorBlack);
 				nextCellIsWhite = !nextCellIsWhite;
 				cells.Add(cell);
 			}
@@ -38,7 +43,7 @@ public class Board : MonoBehaviour
 
 	public Cell GetCell(CellPosition position)
 	{
-		return cells.First(x => x.position == position);
+		return cells.FirstOrDefault(x => x.position == position);
 	}
 }
 
@@ -52,5 +57,25 @@ public class CellPosition
 	{
 		this.x = x;
 		this.y = y;
+	}
+
+	public static CellPosition operator + (CellPosition a, CellPosition b)
+	{
+		return new CellPosition(a.x + b.x, a.y + b.y);
+	}
+
+	public static CellPosition operator - (CellPosition a, CellPosition b)
+	{
+		return new CellPosition(a.x - b.x, a.y - b.y);
+	}
+
+	public static bool operator == (CellPosition a, CellPosition b)
+	{
+		return a.x == b.x && a.y == b.y;
+	}
+
+	public static bool operator != (CellPosition a, CellPosition b)
+	{
+		return a.x != b.x || a.y != b.y;
 	}
 }

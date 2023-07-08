@@ -5,11 +5,14 @@ using UnityEngine.UI;
 
 public class Piece : MonoBehaviour
 {
-	[SerializeField] PieceData data;
+	[SerializeField] public PieceData data;
 	[SerializeField] Image image;
+	[SerializeField] public RectTransform rt;
 
-	private void Start()
+	public void Setup(PieceData _data)
 	{
+		data = _data;
 		image.sprite = data.sprite;
+		image.color = data.color == Turn.White?Color.white:Color.black;
 	}
 }
