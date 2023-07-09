@@ -8,6 +8,8 @@ using UnityEngine;
 
 public class StaticHelper
 {
+	public static int currentSimulations;
+
 	[InitializeOnEnterPlayMode]
 	static void OnEnterPlaymodeInEditor(EnterPlayModeOptions options)
 	{

@@ -1,12 +1,27 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+using Unity.VisualScripting;
+using Unity.VisualScripting.FullSerializer;
 using UnityEngine;
 using UnityEngine.UIElements;
+using static UnityEngine.Rendering.DebugUI;
 
 public class PlayerAI : MonoBehaviour
 {
+	bool multithread = true;
+
 	public Turn turn;
+	int maxDepth = 4;
+	Sim_Board currentTurnBoard;
+	Sim_Board bestBoard;
+	List<(Sim_Board board, int value)> simValues;
+
+	event Action<Sim_Board,int> OnMinimaxEnded;
+	event Action OnBestActionFound;
 
 	private void OnEnable()
 	{
@@ -20,20 +35,87 @@ public class PlayerAI : MonoBehaviour
 
 	private void GameTurn_OnTurnChanged(Turn obj)
 	{
-		if (obj == turn) PlayBestAction();
+		if (obj == turn) StartCoroutine(StartSimulation());
 	}
 
-	void PlayBestAction()
+	IEnumerator StartSimulation()
 	{
 		//Simulation of current board state
-		Sim_Board sim_Board = new Sim_Board()
+		Debug.Log("Starting AI calculation");
+		simValues = new List<(Sim_Board board, int value)>();
+		List<Thread> threads = new List<Thread>();
+		StaticHelper.currentSimulations = 0;
+		currentTurnBoard = new Sim_Board()
 		{
 			cells = Board.instance.cells.Select(x => new Sim_Cell(x)).ToArray(),
 			turn = GameTurn.turn
 		};
+		bestBoard = null;
 
-		sim_Board.SetNextTurnBoards();
-		Sim_Board bestBoard = sim_Board.nextTurnBoards.OrderBy(x => minimax(x, 5, turn == Turn.White)).First();
+		currentTurnBoard.SetNextTurnBoards();
+		if (multithread)
+		{
+			OnMinimaxEnded += AddMinimaxedAction;
+
+			foreach (var board in currentTurnBoard.nextTurnBoards)
+			{
+				Thread t = new Thread(() =>
+				{
+					ThreadedMinimax(board, maxDepth);
+				});
+
+				t.Start();
+				threads.Add(t);
+			}
+
+			while (threads.Any(x => x.IsAlive)) yield return null;
+			PlayBestAction();
+			OnMinimaxEnded -= AddMinimaxedAction;
+		}
+		else
+		{
+			OnBestActionFound += PlayBestAction;
+			Thread t = new Thread(() =>
+			{
+				//bestBoard = currentTurnBoard.nextTurnBoards.OrderBy(x => minimax(x, 4)).First();
+				foreach (var sim in currentTurnBoard.nextTurnBoards)
+				{
+					int value = minimax(sim, maxDepth);
+					simValues.Add((sim, value));
+				}
+				bestBoard = simValues.OrderBy(x => x.value).First().board;
+				OnBestActionFound?.Invoke();
+				OnBestActionFound -= PlayBestAction;
+			});
+			t.Start();
+		}
+	}
+
+	void ThreadedMinimax(Sim_Board sim, int depth)
+	{
+		int value = minimax(sim, depth);
+		OnMinimaxEnded?.Invoke(sim, value);
+	}
+
+	void AddMinimaxedAction(Sim_Board sim, int value)
+	{
+		simValues.Add((sim, value));
+		Debug.Log("minimax ended");
+		//if (simValues.Count == currentTurnBoard.nextTurnBoards.Count)
+		//{
+		//	PlayBestAction();
+		//	OnMinimaxEnded -= AddMinimaxedAction;
+		//}
+	}
+
+	void PlayBestAction()
+	{
+		Debug.Log($"{StaticHelper.currentSimulations} moves simulated");
+
+		if (multithread)
+		{
+			bestBoard = simValues.OrderBy(x => x.value).First().board;
+		}
 
 		Cell from = bestBoard.leadingAction.fromCell;
 		Cell to = bestBoard.leadingAction.toCell;
@@ -50,20 +132,20 @@ public class PlayerAI : MonoBehaviour
 	/// <param name="depth"> maximum turns remaining to simulate</param>
 	/// <param name="white"> get best result for black or white</param>
 	/// <returns></returns>
-	int minimax(Sim_Board sim, int depth, bool white)
-	{
-		bool gameover = false;//TODO determine gameover
-		if (depth == 0 || gameover)
+	int minimax(Sim_Board sim, int depth)
+	{ 
+		if (depth == 0 || sim.gameover)
 		{
 			return sim.GetValue();
 		}
 
-		if (white)
+		sim.SetNextTurnBoards();
+		if (sim.turn == Turn.White)
 		{
 			int max = int.MinValue;
 			foreach (Sim_Board simu in sim.nextTurnBoards)
 			{
-				int eval = minimax(simu, depth - 1, !white);
+				int eval = minimax(simu, depth - 1);
 				max = Mathf.Max(max,eval);
 			}
 			return max;
@@ -74,7 +156,7 @@ public class PlayerAI : MonoBehaviour
 			int min = int.MaxValue;
 			foreach (Sim_Board simu in sim.nextTurnBoards)
 			{
-				int eval = minimax(simu, depth - 1, !white);
+				int eval = minimax(simu, depth - 1);
 				min = Mathf.Max(min, eval);
 			}
 			return min;
@@ -89,6 +171,7 @@ public class Sim_Board
 	public Turn turn;
 	public Dictionary<Sim_Cell, List<Sim_Cell>> possibleMoves = new Dictionary<Sim_Cell, List<Sim_Cell>>();
 	public List<Sim_Board> nextTurnBoards = new List<Sim_Board>();
+	public bool gameover;
 
 	public void SetNextTurnBoards()
 	{
@@ -97,6 +180,7 @@ public class Sim_Board
 		{
 			foreach (var move in sourceCell.Value)
 			{
+				StaticHelper.currentSimulations++;
 				SimulateAction(sourceCell.Key, move);
 			}
 		}
@@ -210,6 +294,7 @@ public class Sim_Board
 	{
 		Sim_Cell[] simCells = cells.Select(x => x.Copy()).ToArray();
 
+		bool king = to.piece?.data.value == 900;
 		simCells.First(x => x.position == to.position).piece = from.piece.Copy();
 		simCells.First(x => x.position == from.position).piece = null;
 
@@ -217,8 +302,14 @@ public class Sim_Board
 		{
 			cells = simCells,
 			turn = turn == Turn.White ? Turn.Black : Turn.White,
-			leadingAction = new Sim_PieceMovement(from, to)
+			leadingAction = new Sim_PieceMovement(from, to),
 		};
+
+		if (king)
+		{
+			sim.gameover = true;
+			Debug.Log($"Win condition on {turn} turn");
+		}
 
 		nextTurnBoards.Add(sim);
 	}
