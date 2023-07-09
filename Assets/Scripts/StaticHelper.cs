@@ -57,7 +57,10 @@ public class StaticHelper
 		//Set all your statics here
 		GameTurn.moveCells = new List<Cell>();
 		GameTurn.turn = Turn.White;
+		GameTurn.playerTurn = Turn.White;
+		GameTurn.aiTurn = Turn.Black;
 		GameTurn.isDragging = false;
 		GameTurn.OnTurnChanged = null;
+		GameTurn.isGameActive = true;
 }
 }

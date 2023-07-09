@@ -6,7 +6,10 @@ using UnityEngine.UIElements;
 
 public static class GameTurn
 {
-	public static Turn turn = Turn.White;
+	public static Turn turn;
+	public static Turn playerTurn;
+	public static Turn aiTurn;
+	public static bool isGameActive;
 	public static bool isSwitched;
 	public static bool isDragging;
 	public static Piece draggingPiece;
@@ -107,6 +110,8 @@ public static class GameTurn
 
 	public static void EndTurn()
 	{
+		if (!isGameActive) return;
+
 		switch (turn)
 		{
 			case Turn.White:

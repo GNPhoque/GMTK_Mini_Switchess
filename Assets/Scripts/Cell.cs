@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -11,6 +12,8 @@ public class Cell : MonoBehaviour
 	public Turn color;
 	public Color cellColor;
 
+	public static event Action<bool> OnKingCaptured;
+	
 	public void Setup(CellPosition position, Turn color, Color cellColor)
 	{
 		this.position = position;
@@ -24,6 +27,10 @@ public class Cell : MonoBehaviour
 	{
 		if (piece)
 		{
+			if(piece.data.value == 900)
+			{
+				OnKingCaptured?.Invoke(piece.data.color == Turn.White);
+			}
 			Destroy(piece.gameObject);
 		}
 		piece = p;
@@ -77,7 +84,7 @@ public class Cell : MonoBehaviour
 
 	public void PointerDrag()
 	{
-		if (!piece || !piece.data.canBePlayed) return;
+		if (!piece || !piece.data.canBePlayed || GameTurn.turn == GameTurn.aiTurn) return;
 
 		//if not dragging save starting position
 		if (!GameTurn.isDragging)
@@ -96,13 +103,12 @@ public class Cell : MonoBehaviour
 
 	public void PointerDrop()
 	{
-		if (!GameTurn.isDragging) return;
+		if (!GameTurn.isDragging || GameTurn.turn == GameTurn.aiTurn) return;
 
 		//if possible move : move to cell (and attack)
 		if (GameTurn.moveCells.Contains(this))
 		{
-			if (piece) Destroy(piece.gameObject);
-			piece = GameTurn.draggingPiece;
+			SetPiece(GameTurn.draggingPiece);
 			piece.rt.anchorMin = new Vector2(0f, 0f);
 			piece.rt.anchorMax = new Vector2(0f, 0f);
 			GameTurn.dragStartCell.piece = null;

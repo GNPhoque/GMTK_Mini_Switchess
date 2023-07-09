@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 
 public class GameManager : MonoBehaviour
@@ -7,15 +8,25 @@ public class GameManager : MonoBehaviour
 	[SerializeField] Board board;
 	[SerializeField] PieceData[] pieceDatas;
 	[SerializeField] Piece piecePrefab;
-	[SerializeField] Player player;
 	[SerializeField] PlayerAI ai;
+
+	[SerializeField] GameObject endGamePanel;
+	[SerializeField] TextMeshProUGUI winnerText;
 
 	private void Start()
 	{
-		player.turn = Turn.White;
-		ai.turn = Turn.Black;
 		board.CreateBoard();
 		SetupPieces();
+		Cell.OnKingCaptured += Cell_OnKingCaptured;
+	}
+
+	private void Cell_OnKingCaptured(bool white)
+	{
+		//END GAME
+		GameTurn.isGameActive = false;
+		//SHOW WINNER
+		endGamePanel.SetActive(true);
+		winnerText.text = $"{(white?"WHITE" : "BLACK")} PLAYER WINS";
 	}
 
 	void SetupPieces()
@@ -33,7 +44,7 @@ public class GameManager : MonoBehaviour
 		SetupPiece(pieceDatas[4], new CellPosition(3, 0));
 		SetupPiece(pieceDatas[5], new CellPosition(4, 0));
 
-		//BLACKS
+		////BLACKS
 		SetupPiece(pieceDatas[6], new CellPosition(0, 3));
 		SetupPiece(pieceDatas[6], new CellPosition(1, 3));
 		SetupPiece(pieceDatas[6], new CellPosition(2, 3));

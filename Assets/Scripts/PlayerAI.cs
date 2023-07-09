@@ -14,7 +14,6 @@ public class PlayerAI : MonoBehaviour
 {
 	bool multithread = true;
 
-	public Turn turn;
 	int maxDepth = 4;
 	Sim_Board currentTurnBoard;
 	Sim_Board bestBoard;
@@ -35,7 +34,7 @@ public class PlayerAI : MonoBehaviour
 
 	private void GameTurn_OnTurnChanged(Turn obj)
 	{
-		if (obj == turn) StartCoroutine(StartSimulation());
+		if (obj == GameTurn.aiTurn) StartCoroutine(StartSimulation());
 	}
 
 	IEnumerator StartSimulation()
@@ -89,6 +88,11 @@ public class PlayerAI : MonoBehaviour
 			});
 			t.Start();
 		}
+	}
+
+	bool CheckGameOver()
+	{
+		return currentTurnBoard.nextTurnBoards.Any(x => x.gameover != false);
 	}
 
 	void ThreadedMinimax(Sim_Board sim, int depth)
