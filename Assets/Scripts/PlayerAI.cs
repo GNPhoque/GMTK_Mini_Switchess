@@ -25,15 +25,15 @@ public class PlayerAI : MonoBehaviour
 
 	void PlayBestAction()
 	{
+		//Simulation of current board state
 		Sim_Board sim_Board = new Sim_Board()
 		{
 			cells = Board.instance.cells.Select(x => new Sim_Cell(x)).ToArray(),
 			turn = GameTurn.turn
-			//turn = GameTurn.turn == Turn.White ? Turn.Black : Turn.White
 		};
 
 		sim_Board.SetNextTurnBoards();
-		Sim_Board bestBoard = sim_Board.nextTurnBoards.OrderBy(x => minimax(x, 1, false)).First();
+		Sim_Board bestBoard = sim_Board.nextTurnBoards.OrderBy(x => minimax(x, 5, turn == Turn.White)).First();
 
 		Cell from = bestBoard.leadingAction.fromCell;
 		Cell to = bestBoard.leadingAction.toCell;
@@ -43,12 +43,19 @@ public class PlayerAI : MonoBehaviour
 		GameTurn.EndTurn();
 	}
 
+	/// <summary>
+	/// 
+	/// </summary>
+	/// <param name="sim"> state of the game at the start of the turn</param>
+	/// <param name="depth"> maximum turns remaining to simulate</param>
+	/// <param name="white"> get best result for black or white</param>
+	/// <returns></returns>
 	int minimax(Sim_Board sim, int depth, bool white)
 	{
 		bool gameover = false;//TODO determine gameover
 		if (depth == 0 || gameover)
 		{
-			return sim.GetValue(white);
+			return sim.GetValue();
 		}
 
 		if (white)
@@ -83,11 +90,6 @@ public class Sim_Board
 	public Dictionary<Sim_Cell, List<Sim_Cell>> possibleMoves = new Dictionary<Sim_Cell, List<Sim_Cell>>();
 	public List<Sim_Board> nextTurnBoards = new List<Sim_Board>();
 
-	//public (CellPosition from, CellPosition to) GetBestAction()
-	//{
-	//	int 
-	//} 
-
 	public void SetNextTurnBoards()
 	{
 		SetPossibleMoves();
@@ -100,12 +102,16 @@ public class Sim_Board
 		}
 	}
 
-	public int GetValue(bool white)
+	//negative is advantage for black, positive is advantage for white
+	public int GetValue()
 	{
 		int ret = 0;
-		foreach (var cell in cells.Where(x => x.piece != null && x.piece.data.color == (white ? Turn.White : Turn.Black)))
+		foreach (var cell in cells.Where(x => x.piece != null))
 		{
-			ret += cell.piece.data.value;
+			if (cell.piece.data.color == Turn.White)
+				ret += cell.piece.data.value;
+			else
+				ret -= cell.piece.data.value;
 		}
 		return ret;
 	}
@@ -117,7 +123,9 @@ public class Sim_Board
 			if (cell.piece == null || !cell.piece.data.canBePlayed) continue;
 
 			//If cell has a piece, get all available movements for this piece
-			possibleMoves.Add(cell, GetPossibleMovesFromCell(cell));
+			List<Sim_Cell> possibleMovesFromCell = GetPossibleMovesFromCell(cell);
+			if (possibleMovesFromCell.Count > 0)
+				possibleMoves.Add(cell, possibleMovesFromCell);
 		}
 	}
 
